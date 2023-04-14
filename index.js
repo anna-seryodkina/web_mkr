@@ -36,8 +36,14 @@ app.get('/students', (req, res) => {
 
 
 app.get('/:nickname', (req, res) => {
-    var token = jwt.sign({'nickname': req.params.nickname}, 'supersecret');
-    res.json({'nickname': req.params.nickname, 'token': token});
+    const {nickname} = req.params.nickname;
+    sql = "SELECT * FROM students WHERE nickname LIKE '%${nickname}%'";
+    db.run(sql, [nickname], (err)=>{
+        if(err) return res.json({status: 300,  success: false, error: err});
+
+        var token = jwt.sign({'nickname': nickname}, 'supersecret');
+        return res.json({status: 200,  success: true, 'nickname': req.params.nickname, 'token': token});
+    })
 });
 
 
